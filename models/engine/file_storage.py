@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import uuid
 
@@ -15,11 +17,11 @@ class FileStorage:
         # Generate a unique file name
         unique_file_name = str(uuid.uuid4()) + '_' + file_name
         file_path = os.path.join(self.base_dir, unique_file_name)
-        
+
         # Save the file
         with open(file_path, 'wb') as file:
             file.write(data)
-        
+
         return unique_file_name
 
     def delete(self, file_name):
@@ -38,3 +40,4 @@ class FileStorage:
     def get_path(self, file_name):
         """Get the full path of a file."""
         return os.path.join(self.base_dir, file_name)
+
