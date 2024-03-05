@@ -2,17 +2,17 @@
 
 from models.base_model import BaseModel
 
-class State(BaseModel):
+class Amenity(BaseModel):
     """
-    Represents a State in the AirBnB clone application.
+    Represents an Amenity in the AirBnB clone application.
 
     Attributes:
-        name (str): The name of the state.
+        name (str): The name of the amenity.
     """
     name = ""
 
     def __init__(self, *args, **kwargs):
-        """Initializes the State instance with the given attributes."""
+        """Initializes the Amenity instance with the given attributes."""
         super().__init__(*args, **kwargs)
         if kwargs:
             for key, value in kwargs.items():
@@ -21,12 +21,12 @@ class State(BaseModel):
         self.save()
 
     def save(self):
-        """Saves the state instance to the storage."""
-        # Implementation of saving the state to the storage
+        """Saves the amenity instance to the storage."""
+        # Implementation of saving the amenity to the storage
         pass
 
     def to_dict(self):
-        """Returns a dictionary representation of the state."""
+        """Returns a dictionary representation of the amenity."""
         return {
             'id': self.id,
             'name': self.name,
@@ -35,5 +35,5 @@ class State(BaseModel):
         }
 
     def __str__(self):
-        """Returns a string representation of the state."""
-        return "[State] ({}) {}".format(self.id, self.name)
+        """Returns a string representation of the amenity."""
+        return "[Amenity] ({}) {}".format(self.id, self.name)

@@ -1,4 +1,4 @@
-# models/__init__.py
+#!/usr/bin/python3
 
 from .user import User
 from .city import City

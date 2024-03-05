@@ -1,44 +1,95 @@
-import sys
-from models import User, Place, Review # Assuming these models are defined in your models package
+#!/usr/bin/python3
 
-def main():
-    """Main function to run the console application."""
-    print("Welcome to the AirBnB clone console application!")
-    print("Available commands:")
-    print("1. Create a new user")
-    print("2. Create a new place")
-    print("3. Create a new review")
-    # Add more commands as needed
+import cmd
+import json
+import uuid
+from datetime import datetime
+from models import User, State, City, Place, Review
+from engine.file_storage import FileStorage
 
-    while True:
-        try:
-            choice = input("Enter the number of the command you want to execute: ")
-            if choice == '1':
-                create_user()
-            elif choice == '2':
-                create_place()
-            elif choice == '3':
-                create_review()
-            # Add more conditions for other commands
+# Initialize FileStorage
+storage = FileStorage('./storage')
+
+class AirBnBShell(cmd.Cmd):
+    """A command interpreter for managing AirBnB objects."""
+
+    prompt = '(AirBnB) '
+
+    def do_create(self, arg):
+        """Create a new object (e.g., User, Place)."""
+        args = arg.split()
+        if len(args) < 2:
+            print("Usage: create <object_type> <attribute1=value1> <attribute2=value2> ...")
+            return
+
+        obj_type = args[0]
+        attributes = dict(item.split('=') for item in args[1:])
+
+        if obj_type == 'User':
+            user = User(**attributes)
+            user.save()
+            print(f"Created User: {user.id}")
+        elif obj_type == 'Place':
+            place = Place(**attributes)
+            place.save()
+            print(f"Created Place: {place.id}")
+        # Add more object types as needed
+        else:
+            print(f"Unsupported object type: {obj_type}")
+
+    def do_show(self, arg):
+        """Show an object's details."""
+        args = arg.split()
+        if len(args) != 2:
+            print("Usage: show <object_type> <id>")
+            return
+
+        obj_type, obj_id = args
+        if obj_type == 'User':
+            user = User.find(obj_id)
+            if user:
+                print(user.to_dict())
             else:
-                print("Invalid command. Please try again.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+                print("User not found.")
+        elif obj_type == 'Place':
+            place = Place.find(obj_id)
+            if place:
+                print(place.to_dict())
+            else:
+                print("Place not found.")
+        # Add more object types as needed
+        else:
+            print(f"Unsupported object type: {obj_type}")
 
-def create_user():
-    """Function to create a new user."""
-    # Implement user creation logic here
-    pass
+    def do_delete(self, arg):
+        """Delete an object."""
+        args = arg.split()
+        if len(args) != 2:
+            print("Usage: delete <object_type> <id>")
+            return
 
-def create_place():
-    """Function to create a new place."""
-    # Implement place creation logic here
-    pass
+        obj_type, obj_id = args
+        if obj_type == 'User':
+            user = User.find(obj_id)
+            if user:
+                user.delete()
+                print("User deleted.")
+            else:
+                print("User not found.")
+        elif obj_type == 'Place':
+            place = Place.find(obj_id)
+            if place:
+                place.delete()
+                print("Place deleted.")
+            else:
+                print("Place not found.")
+        # Add more object types as needed
+        else:
+            print(f"Unsupported object type: {obj_type}")
 
-def create_review():
-    """Function to create a new review."""
-    # Implement review creation logic here
-    pass
+    def do_EOF(self, line):
+        """Exit the command interpreter."""
+        return True
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    AirBnBShell().cmdloop()
