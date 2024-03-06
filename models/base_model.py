@@ -2,6 +2,8 @@
 
 import datetime
 import uuid
+# from models import storage
+storage = __import__('models.engine.file_storage').FileStorage()
 
 
 class BaseModel:
@@ -19,10 +21,20 @@ class BaseModel:
         Initializes the BaseModel instance with a
         unique ID and timestamps for creation and update.
         """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.datetime.now()
-        self.updated_at = datetime.datetime.now()
-        self.save()
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    setattr(self, key, datetime.datetime.strptime(
+                        value, "%Y-%m-%dT%H:%M:%S.%f")
+                    )
+                elif key != "__class__":
+                    setattr(self, key, value)
+            storage.new(self)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.datetime.now()
+            self.updated_at = datetime.datetime.now()
+            storage.new(self)
 
     def save(self):
         """A method to save the model instance."""

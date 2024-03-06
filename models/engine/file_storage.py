@@ -1,43 +1,40 @@
 #!/usr/bin/python3
-
 import os
 import uuid
+import json
+
 
 class FileStorage:
     """A simple file storage system."""
 
-    def __init__(self, base_dir):
-        """Initialize the storage with a base directory."""
-        self.base_dir = base_dir
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
+    __file_path = "file.json"
+    __objects = {}
 
-    def save(self, file_name, data):
-        """Save a file with the given data."""
-        # Generate a unique file name
-        unique_file_name = str(uuid.uuid4()) + '_' + file_name
-        file_path = os.path.join(self.base_dir, unique_file_name)
+    def all(self):
+        """Returns the dictionary __objects."""
+        return self.__objects
 
-        # Save the file
-        with open(file_path, 'wb') as file:
-            file.write(data)
+    def new(self, obj):
+        """Sets in __objects the obj with key <obj class name>.id."""
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        self.__objects[key] = obj
 
-        return unique_file_name
+    def save(self):
+        """Serializes __objects to the JSON file (path: __file_path)."""
 
-    def delete(self, file_name):
-        """Delete a file by its name."""
-        file_path = os.path.join(self.base_dir, file_name)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        else:
-            raise FileNotFoundError(f"No file named '{file_name}'")
+        filedata = {}
+        for key, obj in self.__objects.items():
+            filedata[key] = obj.to_dict()
+        with open(self.__file_path, 'w') as file:
+            json.dump(filedata, file)
 
-    def exists(self, file_name):
-        """Check if a file exists."""
-        file_path = os.path.join(self.base_dir, file_name)
-        return os.path.exists(file_path)
-
-    def get_path(self, file_name):
-        """Get the full path of a file."""
-        return os.path.join(self.base_dir, file_name)
-
+    def reload(self):
+        """Deserializes the JSON file to __objects (only if the JSON file (__file_path) exists)."""
+        if os.path.exists(self.__file_path):
+            with open(self.__file_path, 'r') as file:
+                data = json.load(file)
+                for key, obj_data in data.items():
+                    class_name, obj_id = key.split('.')
+                    class_obj = eval(class_name)
+                    obj = class_obj(**obj_data)
+                    self.__objects[key] = obj
